@@ -1,5 +1,6 @@
 ## Project-V
 Simple Machine Learning Model to see Patterns in House Prices 
+(The site uses Tensor flow js so no need for installations ! :) )
 
 ## Key Features
 - **Data Preparation:** We’ll clean and preprocess our dataset, effectively handling missing values, outliers, and categorical data.
