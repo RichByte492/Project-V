@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+* {margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif;}
+body {
+    background: #0a0a1f;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+}
+.container {
+    background: #12123f;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,200,255,.2);
+    color: #fff;
+    width: 90%;
+    max-width: 400px;
+}
+input, button {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border: 1px solid #2a2a5a;
+    background: #1a1a3f;
+    color: #fff;
+    border-radius: 4px;
+}
+button {
+    background: #304;
+    cursor: pointer;
+    margin-top: 15px;
+}
+button:hover {background: #405;}
+#result {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    display: none;
+}
+.good {background: #143;}
+.bad {background: #412;}
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>Price Predictor v1.0</h2><br>
+    <form id="f">
+        <input type="number" id="sqft" placeholder="Square Feet" required><br>
+        <input type="number" id="beds" placeholder="Bedrooms" required><br>
+        <input type="number" id="baths" placeholder="Bathrooms" required><br>
+        <button type="submit">Predict</button>
+    </form>
+    <div id="result"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+<script>
+let m;
+async function init() {
+    try {
+        m = tf.sequential();
+        
+        m.add(tf.layers.dense({
+            inputShape: [3],
+            units: 12,
+            activation: 'relu'
+        }));
+        
+        m.add(tf.layers.dense({units: 8, activation: 'relu'}));
+        m.add(tf.layers.dense({units: 1}));
+        
+        m.compile({optimizer: 'adam', loss: 'meanSquaredError'});
+        
+        let x = [], y = [];
+        for(let i = 0; i < 500; i++) {
+            let s = Math.random() * 3000 + 1000;
+            let b = Math.floor(Math.random() * 5) + 1;
+            let t = Math.floor(Math.random() * 3) + 1;
+            
+            x.push([s/3000, b/5, t/3]);
+            y.push([((s * 200) + (b * 50000) + (t * 25000))/1000000]);
+        }
+        
+        await m.fit(tf.tensor2d(x), tf.tensor2d(y), {
+            epochs: 100,
+            batchSize: 32
+        });
+    } catch(e) {
+        console.log(e);
+    }
+}
+
+document.getElementById('f').onsubmit = async(e) => {
+    e.preventDefault();
+    try {
+        let s = +document.getElementById('sqft').value;
+        let b = +document.getElementById('beds').value;
+        let t = +document.getElementById('baths').value;
+        
+        let p = await m.predict(tf.tensor2d([[s/3000, b/5, t/3]])).data();
+        let r = document.getElementById('result');
+        r.style.display = 'block';
+        r.className = 'good';
+        r.innerHTML = `Estimated: $${Math.round(p[0] * 1000000).toLocaleString()}`;
+    } catch(e) {
+        let r = document.getElementById('result');
+        r.style.display = 'block';
+        r.className = 'bad';
+        r.innerHTML = 'Error: Try again';
+    }
+};
+
+init();
+</script>
+</body>
+</html>
