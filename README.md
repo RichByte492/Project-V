@@ -25,7 +25,7 @@ git clone https://github.com/RichByte492/Project-V.git
 cd Project-V
 ```
 
-Also Install the dependencies as following 
+## Also Install the dependencies as following :
 pandas == 2.0.0
 numpy == 1.24.0
 scikit-learn == 1.2.2
@@ -34,3 +34,5 @@ lightgbm == 3.3.5
 matplotlib == 3.7.1
 seaborn == 0.12.2
 jupyter == 1.0.0
+
+Dataset from : https://www.kaggle.com/datasets/yasserh/housing-prices-dataset
